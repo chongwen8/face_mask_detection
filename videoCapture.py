@@ -29,6 +29,5 @@ class videoCaputre(qtc.QThread):
 
     def stop(self):
         self.run_flag = False
-        self.wait()
 
 

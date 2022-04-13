@@ -17,7 +17,6 @@ class mainWindow(qtw.QWidget):
         self.browse_image_button = qtw.QPushButton('Browse Image', clicked=self.imageBrowse, checkable=True)
         self.open_video_button = qtw.QPushButton('Open Video', clicked=self.videoOpen, checkable=True)
         self.screen = qtw.QLabel()
-        self.resetBackGround()
         v_layout = qtw.QVBoxLayout()
         v_layout.addWidget(label)
         h_layout = qtw.QHBoxLayout()
