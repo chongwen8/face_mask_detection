@@ -10,15 +10,14 @@ class mainWindow(qtw.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(qtg.QIcon('./images/icon.png'))
-        self.setWindowTitle('Face mask recognition software')
-        self.setFixedSize(600, 600)
-        label = qtw.QLabel('<h2>Face Mask Recognition Application</h2>')
-        self.camera_button = qtw.QPushButton('Open Camera', clicked=self.cameraButtonClick, checkable=True)
-        self.browse_image_button = qtw.QPushButton('Browse Image', clicked=self.imageBrowse, checkable=True)
-        self.open_video_button = qtw.QPushButton('Open Video', clicked=self.videoOpen, checkable=True)
+        self.setWindowTitle('口罩识别软件')
+        self.setFixedSize(800, 600)
+        self.camera_button = qtw.QPushButton('打开摄像头', clicked=self.cameraButtonClick, checkable=True)
+        self.browse_image_button = qtw.QPushButton('浏览图片', clicked=self.imageBrowse, checkable=True)
+        self.open_video_button = qtw.QPushButton('打开视频', clicked=self.videoOpen, checkable=True)
         self.screen = qtw.QLabel()
+        self.resetBackGround()
         v_layout = qtw.QVBoxLayout()
-        v_layout.addWidget(label)
         h_layout = qtw.QHBoxLayout()
         h_layout.addWidget(self.camera_button)
         h_layout.addWidget(self.browse_image_button)
@@ -31,21 +30,21 @@ class mainWindow(qtw.QWidget):
 
     def resetBackGround(self):
         self.screen.clear()
-        self.img = qtg.QPixmap(600, 480)
+        self.img = qtg.QPixmap(800, 580)
         self.img.fill(qtg.QColor('darkGrey'))
         self.screen.setPixmap(self.img)
 
     def cameraButtonClick(self):
         status = self.camera_button.isChecked()
         if status == True:
-            self.camera_button.setText('Close Camera')
+            self.camera_button.setText('关闭摄像头')
 
             self.capture = videoCaputre()
             self.capture.change_pixmap_signal.connect(self.updateImage)
             self.capture.start()
 
         else:
-            self.camera_button.setText('Open Camera')
+            self.camera_button.setText('打开摄像头')
             self.capture.stop()
             self.resetBackGround()
 
@@ -55,29 +54,37 @@ class mainWindow(qtw.QWidget):
             fname = qtw.QFileDialog().getOpenFileName(self, "Open File", "/Users/chong", "Images (*.png *.xpm *.jpg *jpeg)")
             image_path = fname[0]
             img_array = cv2.imread(image_path)
-            if img_array is not None:
+            if image_path != '':
                 img = prediction(img_array)
                 self.updateImage(img)
-                self.browse_image_button.setText('Clear Image')
+                self.browse_image_button.setText('清空图片')
             else:
-                status == False
+                self.browse_image_button.toggle()
+                status = False
 
         elif status == False:
-            self.browse_image_button.setText('Browse Image')
+            self.browse_image_button.setText('浏览图片')
             self.resetBackGround()
 
     def videoOpen(self):
         status = self.open_video_button.isChecked()
+        print(status)
         if status == True:
-            self.open_video_button.setText('Close Video')
+            self.open_video_button.setText('关闭视频')
             fname = qtw.QFileDialog().getOpenFileName(self, "Open File", "/Users/chong", "Video (*.mp4)")
             image_path = fname[0]
-            self.capture = videoCaputre(status=image_path)
-            self.capture.change_pixmap_signal.connect(self.updateImage)
-            self.capture.start()
+            if image_path != '':
+                self.capture = videoCaputre(status=image_path)
+                self.capture.change_pixmap_signal.connect(self.updateImage)
+                self.capture.start()
+            else:
+                self.open_video_button.toggle()
+                self.open_video_button.setText('打开视频')
+                self.resetBackGround()
+                
 
-        else:
-            self.open_video_button.setText('Open Video')
+        elif status == False:
+            self.open_video_button.setText('打开视频')
             self.capture.stop()
             self.resetBackGround()
 
@@ -89,7 +96,7 @@ class mainWindow(qtw.QWidget):
         h,w,ch = rgb_img.shape
         bytes_per_line = ch * w
         convertedImage = qtg.QImage(rgb_img.data,w,h,bytes_per_line,qtg.QImage.Format_RGB888)
-        scaled_image = convertedImage.scaled(600,480,qtc.Qt.KeepAspectRatio)
+        scaled_image = convertedImage.scaled(800,580,qtc.Qt.KeepAspectRatio)
         qt_img = qtg.QPixmap.fromImage(scaled_image)
         self.screen.setPixmap(qt_img)
 
